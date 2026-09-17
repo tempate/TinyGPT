@@ -6,13 +6,13 @@ import torch.nn.functional as F
 class Head(nn.Module):
     """ one head of self-attention """
 
-    def __init__(self, num_embd, head_size, block_size):
+    def __init__(self, config):
         super().__init__()
-        self.key = nn.Linear(num_embd, head_size, bias=False)
-        self.query = nn.Linear(num_embd, head_size, bias=False)
-        self.value = nn.Linear(num_embd, head_size, bias=False)
+        self.key = nn.Linear(config.num_embd, config.head_size, bias=False)
+        self.query = nn.Linear(config.num_embd, config.head_size, bias=False)
+        self.value = nn.Linear(config.num_embd, config.head_size, bias=False)
         self.register_buffer(
-            "tril", torch.tril(torch.ones(block_size, block_size))
+            "tril", torch.tril(torch.ones(config.block_size, config.block_size))
         )
 
     def forward(self, x):

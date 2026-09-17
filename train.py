@@ -1,4 +1,5 @@
-from model import BigramLanguageModel, NUM_EMBD
+from config import Config
+from model import BigramLanguageModel
 from tokenizer import Tokenizer
 from dataset import Dataset
 from data import load_text
@@ -6,24 +7,16 @@ from data import load_text
 import torch
 
 
-SEED = 1337
-torch.manual_seed(SEED)
-BATCH_SIZE = 32
-BLOCK_SIZE = 8
-LEARNING_RATE = 1e-3
-NUM_STEPS = 10_000
+def train(config, model, train_dataset, val_dataset):
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.learning_rate)
 
+    for step in range(config.num_steps):
+        x, y = train_dataset.get_batch()
 
-def train(model, train_dataset, val_dataset):
-    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-
-    for step in range(NUM_STEPS):
-        x, y = train_dataset.get_batch(BATCH_SIZE)
-
-        if step % 1000 == 0:
+        if step % config.eval_interval == 0:
             # Evaluate loss on train and val sets
-            train_loss = estimate_loss(model, train_dataset, eval_iters=200)
-            val_loss = estimate_loss(model, val_dataset, eval_iters=200)
+            train_loss = estimate_loss(config, model, train_dataset)
+            val_loss = estimate_loss(config, model, val_dataset)
             print(f"Step {step}, Train Loss: {train_loss.item()}, Val Loss: {val_loss.item()}")
 
         # Forward pass
@@ -38,31 +31,34 @@ def train(model, train_dataset, val_dataset):
 
 
 @torch.no_grad()
-def estimate_loss(model, dataset, eval_iters=200):
+def estimate_loss(config, model, dataset):
     """Estimate the loss on the given data."""
-    losses = torch.zeros(eval_iters)
-    for i in range(eval_iters):
-        x, y = dataset.get_batch(BATCH_SIZE)
+    losses = torch.zeros(config.eval_iters)
+    for i in range(config.eval_iters):
+        x, y = dataset.get_batch()
         _, loss = model(x, y)
         losses[i] = loss.item()
     return losses.mean()
 
 
 def main():
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    config = Config()
+    torch.manual_seed(config.seed)
 
     # Read the dataset, downloading it on first run
     text = load_text()
 
     # Tokenize the dataset
     tokenizer = Tokenizer.from_text(text)
+    config.vocab_size = tokenizer.vocab_size
+
     data = torch.tensor(tokenizer.encode(text), dtype=torch.long)
-    train_dataset, val_dataset = Dataset(data, device, block_size=BLOCK_SIZE).split()
+    train_dataset, val_dataset = Dataset(data, config).split()
 
-    model = BigramLanguageModel(tokenizer.vocab_size, BLOCK_SIZE, NUM_EMBD).to(device)
-    train(model, train_dataset, val_dataset)
+    model = BigramLanguageModel(config).to(config.device)
+    train(config, model, train_dataset, val_dataset)
 
-    tokens = torch.zeros((1, 1), dtype=torch.long, device=device)  # Starting token (e.g., BOS token)
+    tokens = torch.zeros((1, 1), dtype=torch.long, device=config.device)  # Starting token (e.g., BOS token)
     new_tokens = model.generate(tokens, max_new_tokens=100)
     print(tokenizer.decode(new_tokens[0].tolist()))
 

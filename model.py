@@ -2,35 +2,30 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from block import Block
-torch.manual_seed(1337)
-
-NUM_EMBD = 32  # Size of the embedding vector for each token
-NUM_HEADS = 4  # Number of attention heads
-NUM_LAYERS = 3  # Number of transformer blocks
 
 
 class BigramLanguageModel(nn.Module):
-    def __init__(self, vocab_size, block_size, num_embd):
+    def __init__(self, config):
         super().__init__()
-        # Tokens are now embedded into num_embd dimensions, not straight to logits
-        self.token_embedding_table = nn.Embedding(vocab_size, num_embd)
-        self.position_embedding_table = nn.Embedding(block_size, num_embd)
+        self.config = config
+        self.token_embedding_table = nn.Embedding(config.vocab_size, config.num_embd)
+        self.position_embedding_table = nn.Embedding(config.block_size, config.num_embd)
         self.blocks = nn.Sequential(
-            *[Block(NUM_HEADS, num_embd, block_size) for _ in range(NUM_LAYERS)]
+            *[Block(config) for _ in range(config.num_layers)]
         )
-        self.norm = nn.LayerNorm(num_embd)
-        self.lm_head = nn.Linear(num_embd, vocab_size)
+        self.norm = nn.LayerNorm(config.num_embd)
+        self.lm_head = nn.Linear(config.num_embd, config.vocab_size)
 
     def forward(self, idx, targets=None):
         B, T = idx.shape
 
         # idx and targets are both (B,T) tensor of integers
-        tkn_emb = self.token_embedding_table(idx)  # (B,T,num_embd)
-        pos_emb = self.position_embedding_table(torch.arange(T, device=idx.device))  # (T,num_embd)
-        x = tkn_emb + pos_emb  # (B,T,num_embd)
-        x = self.blocks(x)  # (B,T,num_embd)
+        tkn_emb = self.token_embedding_table(idx)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=self.config.device))
+        x = tkn_emb + pos_emb
+        x = self.blocks(x)
         x = self.norm(x)
-        logits = self.lm_head(x)  # (B,T,vocab_size)
+        logits = self.lm_head(x)
 
         if targets is None:
             return logits, None
