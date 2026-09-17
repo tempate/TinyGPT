@@ -28,3 +28,19 @@ class FeedForward(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
+
+class Block(nn.Module):
+    """ Transformer block: communication followed by computation """
+
+    def __init__(self, num_heads, num_embd, block_size):
+        super().__init__()
+        self.sa_heads = MultiHeadAttention(
+            num_heads, num_embd, num_embd // num_heads, block_size
+        )
+        self.ffwd = FeedForward(num_embd)
+
+    def forward(self, x):
+        x = self.sa_heads(x)
+        x = self.ffwd(x)
+        return x
