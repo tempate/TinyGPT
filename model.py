@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from block import Block
 
 
-class BigramLanguageModel(nn.Module):
+class GPT(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config

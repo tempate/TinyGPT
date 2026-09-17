@@ -1,5 +1,5 @@
 from config import Config
-from model import BigramLanguageModel
+from model import GPT
 from tokenizer import Tokenizer
 from dataset import Dataset
 from data import load_text
@@ -55,7 +55,7 @@ def main():
     data = torch.tensor(tokenizer.encode(text), dtype=torch.long)
     train_dataset, val_dataset = Dataset(data, config).split()
 
-    model = BigramLanguageModel(config).to(config.device)
+    model = GPT(config).to(config.device)
     train(config, model, train_dataset, val_dataset)
 
     tokens = torch.zeros((1, 1), dtype=torch.long, device=config.device)  # Starting token (e.g., BOS token)
