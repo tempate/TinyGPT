@@ -18,6 +18,7 @@ class BigramLanguageModel(nn.Module):
         self.blocks = nn.Sequential(
             *[Block(NUM_HEADS, num_embd, block_size) for _ in range(NUM_LAYERS)]
         )
+        self.norm = nn.LayerNorm(num_embd)
         self.lm_head = nn.Linear(num_embd, vocab_size)
 
     def forward(self, idx, targets=None):
@@ -28,6 +29,7 @@ class BigramLanguageModel(nn.Module):
         pos_emb = self.position_embedding_table(torch.arange(T, device=idx.device))  # (T,num_embd)
         x = tkn_emb + pos_emb  # (B,T,num_embd)
         x = self.blocks(x)  # (B,T,num_embd)
+        x = self.norm(x)
         logits = self.lm_head(x)  # (B,T,vocab_size)
 
         if targets is None:

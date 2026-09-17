@@ -43,8 +43,10 @@ class Block(nn.Module):
             num_heads, num_embd, num_embd // num_heads, block_size
         )
         self.ffwd = FeedForward(num_embd)
+        self.ln1 = nn.LayerNorm(num_embd)
+        self.ln2 = nn.LayerNorm(num_embd)
 
     def forward(self, x):
-        x = x + self.sa_heads(x)
-        x = x + self.ffwd(x)
+        x = x + self.sa_heads(self.ln1(x))
+        x = x + self.ffwd(self.ln2(x))
         return x
