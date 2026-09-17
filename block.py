@@ -10,10 +10,12 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.heads = nn.ModuleList([Head(config) for _ in range(config.num_heads)])
         self.proj = nn.Linear(config.num_embd, config.num_embd)
+        self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
         out = torch.cat([h(x) for h in self.heads], dim=-1)
         out = self.proj(out)
+        out = self.dropout(out)
         return out
 
 
@@ -26,6 +28,7 @@ class FeedForward(nn.Module):
             nn.Linear(config.num_embd, 4 * config.num_embd),
             nn.ReLU(),
             nn.Linear(4 * config.num_embd, config.num_embd),
+            nn.Dropout(config.dropout),
         )
 
     def forward(self, x):

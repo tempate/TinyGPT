@@ -12,6 +12,7 @@ class Config:
     head_size: int = 8  # Size of each attention head
     num_heads: int = 4  # Number of attention heads
     num_layers: int = 3  # Number of transformer layers
+    dropout: float = 0.2  # Dropout probability
 
     # Training
     batch_size: int = 32
