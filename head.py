@@ -8,6 +8,7 @@ class Head(nn.Module):
 
     def __init__(self, config):
         super().__init__()
+        self.config = config
         self.key = nn.Linear(config.num_embd, config.head_size, bias=False)
         self.query = nn.Linear(config.num_embd, config.head_size, bias=False)
         self.value = nn.Linear(config.num_embd, config.head_size, bias=False)
@@ -22,7 +23,7 @@ class Head(nn.Module):
         q = self.query(x)  # (B,T,C)
 
         # compute attention scores ("affinities")
-        wei = q @ k.transpose(-2, -1) * C**-0.5  # (B,T,C) @ (B,C,T) ---> (B,T,T)
+        wei = q @ k.transpose(-2, -1) * self.config.head_size**-0.5
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float("-inf"))  # (B,T,T)
         wei = F.softmax(wei, dim=-1)  # (B,T,T)
         wei = self.dropout(wei)
