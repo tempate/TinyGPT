@@ -8,13 +8,16 @@ class GPT(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.token_embedding_table = nn.Embedding(config.vocab_size, config.num_embd)
-        self.position_embedding_table = nn.Embedding(config.block_size, config.num_embd)
+
+        self.token_embedding_table = nn.Embedding(config.vocab_size, config.embd_dim)
+        self.position_embedding_table = nn.Embedding(config.block_size, config.embd_dim)
+
         self.blocks = nn.Sequential(
             *[Block(config) for _ in range(config.num_layers)]
         )
-        self.norm = nn.LayerNorm(config.num_embd)
-        self.lm_head = nn.Linear(config.num_embd, config.vocab_size)
+
+        self.ln_f = nn.LayerNorm(config.embd_dim)
+        self.lm_head = nn.Linear(config.embd_dim, config.vocab_size)
 
     def forward(self, idx, targets=None):
         B, T = idx.shape
@@ -24,15 +27,15 @@ class GPT(nn.Module):
         pos_emb = self.position_embedding_table(torch.arange(T, device=self.config.device))
         x = tkn_emb + pos_emb
         x = self.blocks(x)
-        x = self.norm(x)
+        x = self.ln_f(x)
         logits = self.lm_head(x)
 
         if targets is None:
             return logits, None
 
         # Reshape logits and targets to compute cross-entropy loss
-        B, T, C = logits.shape
-        logits = logits.view(B * T, C)
+        B, T, vocab_size = logits.shape
+        logits = logits.view(B * T, vocab_size)
         targets = targets.view(B * T)
         loss = F.cross_entropy(logits, targets)
         return logits, loss
@@ -54,10 +57,10 @@ class GPT(nn.Module):
             probs = F.softmax(logits, dim=-1)
 
             # Sample from the distribution or take the most likely
-            next = torch.multinomial(probs, num_samples=1)
+            next_token = torch.multinomial(probs, num_samples=1)
 
             # Append sampled index to the running sequence
-            context = torch.cat((context, next), dim=1)
+            context = torch.cat((context, next_token), dim=1)
 
         self.train()
         return context

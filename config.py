@@ -7,7 +7,7 @@ import torch
 class Config:
     # Model
     block_size: int = 256  # Maximum context length the model can attend to
-    num_embd: int = 384  # Size of the embedding vector for each token
+    embd_dim: int = 384  # Size of the embedding vector for each token
     vocab_size: int = None  # Filled in once the tokenizer has seen the text
     head_size: int = field(init=False)  # Size of each attention head
     num_heads: int = 6  # Number of attention heads
@@ -26,5 +26,5 @@ class Config:
     device: str = field(init=False)
 
     def __post_init__(self):
-        self.head_size = self.num_embd // self.num_heads
+        self.head_size = self.embd_dim // self.num_heads
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
