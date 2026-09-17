@@ -33,11 +33,15 @@ def train(config, model, train_dataset, val_dataset):
 @torch.no_grad()
 def estimate_loss(config, model, dataset):
     """Estimate the loss on the given data."""
+    model.eval()
+
     losses = torch.zeros(config.eval_iters)
     for i in range(config.eval_iters):
         x, y = dataset.get_batch()
         _, loss = model(x, y)
         losses[i] = loss.item()
+
+    model.train()
     return losses.mean()
 
 

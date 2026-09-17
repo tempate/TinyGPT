@@ -40,6 +40,8 @@ class GPT(nn.Module):
     @torch.no_grad()
     def generate(self, context, max_new_tokens):
         """Generate new tokens from a given context."""
+        self.eval()
+
         for _ in range(max_new_tokens):
             # Crop the model input to block size
             context_window = context[:, -self.config.block_size:]
@@ -57,4 +59,5 @@ class GPT(nn.Module):
             # Append sampled index to the running sequence
             context = torch.cat((context, next), dim=1)
 
+        self.train()
         return context
