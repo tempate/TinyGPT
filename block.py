@@ -41,6 +41,6 @@ class Block(nn.Module):
         self.ffwd = FeedForward(num_embd)
 
     def forward(self, x):
-        x = self.sa_heads(x)
-        x = self.ffwd(x)
+        x = x + self.sa_heads(x)
+        x = x + self.ffwd(x)
         return x
