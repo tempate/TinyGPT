@@ -1,4 +1,4 @@
-from model import BigramLanguageModel
+from model import BigramLanguageModel, NUM_EMBD
 from tokenizer import Tokenizer
 from dataset import Dataset
 from data import load_text
@@ -59,7 +59,7 @@ def main():
     data = torch.tensor(tokenizer.encode(text), dtype=torch.long)
     train_dataset, val_dataset = Dataset(data, device, block_size=BLOCK_SIZE).split()
 
-    model = BigramLanguageModel(tokenizer.vocab_size).to(device)
+    model = BigramLanguageModel(tokenizer.vocab_size, BLOCK_SIZE, NUM_EMBD).to(device)
     train(model, train_dataset, val_dataset)
 
     tokens = torch.zeros((1, 1), dtype=torch.long, device=device)  # Starting token (e.g., BOS token)

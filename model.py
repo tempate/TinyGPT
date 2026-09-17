@@ -3,16 +3,25 @@ import torch.nn as nn
 import torch.nn.functional as F
 torch.manual_seed(1337)
 
+NUM_EMBD = 32  # Size of the embedding vector for each token
+
 
 class BigramLanguageModel(nn.Module):
-    def __init__(self, vocab_size):
+    def __init__(self, vocab_size, block_size, num_embd):
         super().__init__()
-        # Each token directly reads off the logits for the next token from a lookup table
-        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+        # Tokens are now embedded into num_embd dimensions, not straight to logits
+        self.token_embedding_table = nn.Embedding(vocab_size, num_embd)
+        self.position_embedding_table = nn.Embedding(block_size, num_embd)
+        self.lm_head = nn.Linear(num_embd, vocab_size)
 
     def forward(self, idx, targets=None):
+        B, T = idx.shape
+
         # idx and targets are both (B,T) tensor of integers
-        logits = self.token_embedding_table(idx)  # (B,T,C)
+        tkn_emb = self.token_embedding_table(idx)  # (B,T,num_embd)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=idx.device))  # (T,num_embd)
+        emb = tkn_emb + pos_emb  # (B,T,num_embd)
+        logits = self.lm_head(emb)  # (B,T,vocab_size)
 
         if targets is None:
             return logits, None
