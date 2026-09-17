@@ -41,8 +41,11 @@ class BigramLanguageModel(nn.Module):
     def generate(self, context, max_new_tokens):
         """Generate new tokens from a given context."""
         for _ in range(max_new_tokens):
+            # Crop the model input to block size
+            context_window = context[:, -self.config.block_size:]
+
             # Get the last prediction
-            logits, _ = self(context)
+            logits, _ = self(context_window)
             logits = logits[:, -1, :]
 
             # Apply softmax to get probabilities
