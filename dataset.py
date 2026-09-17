@@ -19,3 +19,11 @@ class Dataset:
         train_dataset = Dataset(train_data, self.device, self.block_size)
         val_dataset = Dataset(val_data, self.device, self.block_size)
         return train_dataset, val_dataset
+
+    def get_batch(self, batch_size):
+        """Generate a small batch of data of inputs x and targets y."""
+        ix = torch.randint(len(self.data) - self.block_size, (batch_size,))
+        x = torch.stack([self.data[i:i + self.block_size] for i in ix])
+        y = torch.stack([self.data[i + 1:i + self.block_size + 1] for i in ix])
+        x, y = x.to(self.device), y.to(self.device)
+        return x, y
