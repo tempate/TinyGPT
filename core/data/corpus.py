@@ -11,13 +11,27 @@ DATA_URL = (
     "https://raw.githubusercontent.com/karpathy/char-rnn/"
     "master/data/tinyshakespeare/input.txt"
 )
-DATA_PATH = ROOT / "data" / "input.txt"
+DATA_DIR = ROOT / "data"
+SHAKESPEARE = "input.txt"  # The only corpus DATA_URL knows how to fetch
 
 
-def load_text(path=DATA_PATH, url=DATA_URL):
-    """Return the corpus as a string, downloading it if it is not on disk."""
+def load_text(name=SHAKESPEARE):
+    """Return the named corpus from data/ as a string.
+
+    Tiny-shakespeare is downloaded on first use. Any other corpus is expected
+    to be on disk already: fetching the default URL into a file named after a
+    different dataset would silently train on the wrong text.
+    """
+    path = DATA_DIR / name
+
     if not path.exists():
-        print(f"Downloading {url} -> {path}")
+        if name != SHAKESPEARE:
+            raise FileNotFoundError(
+                f"No corpus at {path}. Only {SHAKESPEARE} is downloaded "
+                f"automatically; put {name} there yourself."
+            )
+        print(f"Downloading {DATA_URL} -> {path}")
         path.parent.mkdir(parents=True, exist_ok=True)
-        urllib.request.urlretrieve(url, path)
+        urllib.request.urlretrieve(DATA_URL, path)
+
     return path.read_text()

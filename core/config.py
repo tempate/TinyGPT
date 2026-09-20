@@ -26,6 +26,9 @@ class Config:
     eval_interval: int = 1_000
     eval_iters: int = 200
 
+    # Data
+    corpus: str = "input.txt"  # A filename inside data/
+
     # Runtime
     seed: int = 1337
     device: str = field(init=False)

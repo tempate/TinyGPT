@@ -1,5 +1,6 @@
 """Saving and loading trained models."""
 from dataclasses import asdict, fields
+from pathlib import Path
 
 import torch
 
@@ -7,11 +8,17 @@ from core.config import ROOT, Config
 from core.network.model import GPT
 from core.data.tokenizer import Tokenizer
 
-CHECKPOINT_PATH = ROOT / "checkpoints" / "checkpoint.pt"
+CHECKPOINT_DIR = ROOT / "checkpoints"
 
 
-def save(model, tokenizer, path=CHECKPOINT_PATH):
+def checkpoint_path(config):
+    """Where the weights for this config's corpus live."""
+    return CHECKPOINT_DIR / f"{Path(config.corpus).stem}.pt"
+
+
+def save(model, tokenizer, path=None):
     """Write the weights, the config and the vocabulary to disk."""
+    path = path or checkpoint_path(model.config)
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
@@ -24,8 +31,9 @@ def save(model, tokenizer, path=CHECKPOINT_PATH):
     print(f"Saved checkpoint -> {path}")
 
 
-def load(path=CHECKPOINT_PATH):
-    """Rebuild the model and the tokenizer stored at path."""
+def load(config=None, path=None):
+    """Rebuild the model and the tokenizer trained on config's corpus."""
+    path = path or checkpoint_path(config or Config())
     checkpoint = torch.load(path, map_location="cpu")
 
     config = config_from_dict(checkpoint["config"])

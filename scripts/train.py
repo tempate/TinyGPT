@@ -51,7 +51,7 @@ def main():
     torch.manual_seed(config.seed)
 
     # Read the dataset, downloading it on first run
-    text = load_text()
+    text = load_text(config.corpus)
 
     # Tokenize the dataset
     tokenizer = Tokenizer.from_text(text)

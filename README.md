@@ -26,8 +26,8 @@ python -m scripts.train
 Run it from the repository root. The corpus is downloaded into `data/` on the
 first run, so there is nothing to fetch by hand. Training runs for 10,000
 steps, printing train and validation loss every 1,000, then writes the
-weights, the config and the vocabulary to `checkpoints/checkpoint.pt` and
-prints a short sample.
+weights, the config and the vocabulary to `checkpoints/input.pt` and prints a
+short sample.
 
 It picks up a GPU automatically if one is available. On CPU the default
 settings are slow — see below for a smaller configuration.
@@ -38,7 +38,8 @@ settings are slow — see below for a smaller configuration.
 python -m scripts.sample
 ```
 
-Loads `checkpoints/checkpoint.pt` and prints 500 freshly generated characters.
+Loads the checkpoint for the configured corpus and prints 500 freshly
+generated characters.
 
 ## Configuration
 
@@ -54,13 +55,21 @@ Every hyperparameter lives in `core/config.py`:
 | `batch_size` | 64 | Sequences per step |
 | `learning_rate` | 3e-4 | AdamW learning rate |
 | `num_steps` | 10,000 | Training steps |
+| `corpus` | `input.txt` | Which file in `data/` to train on |
 
 To train on a CPU in a few minutes rather than hours, shrink the model:
 `block_size=64`, `embd_dim=128`, `num_heads=4`, `num_layers=4`,
 `num_steps=2000`.
 
-To train on your own text, save it as `data/input.txt` before the first run
-and it will be used instead of the download.
+To train on your own text, drop the file in `data/` and point `corpus` at it,
+for example `corpus = "chats.txt"`. Only `input.txt` is downloaded
+automatically; any other corpus has to be on disk already, and you get a
+clear error rather than a silent Shakespeare download if it is missing.
+
+Weights are named after the corpus, so `input.txt` trains into
+`checkpoints/input.pt` and `chats.txt` into `checkpoints/chats.pt`. Switching
+corpora never overwrites the other one's checkpoint, and `python -m
+scripts.sample` reads whichever corpus `config.py` currently names.
 
 ## Files
 
