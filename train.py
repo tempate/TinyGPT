@@ -2,6 +2,7 @@ from config import Config
 from model import GPT
 from tokenizer import Tokenizer
 from dataset import Dataset
+from checkpoint import save
 from data import load_text
 
 import torch
@@ -61,6 +62,7 @@ def main():
 
     model = GPT(config).to(config.device)
     train(config, model, train_dataset, val_dataset)
+    save(model, tokenizer)
 
     tokens = torch.zeros((1, 1), dtype=torch.long, device=config.device)  # Starting token (e.g., BOS token)
     new_tokens = model.generate(tokens, max_new_tokens=100)
