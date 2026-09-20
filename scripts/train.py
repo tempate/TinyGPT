@@ -5,6 +5,8 @@ from core.data.dataset import Dataset
 from core.checkpoint import save
 from core.data.corpus import load_text
 
+import argparse
+
 import torch
 
 
@@ -46,8 +48,19 @@ def estimate_loss(config, model, dataset):
     return losses.mean()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train a TinyGPT on a corpus in data/.")
+    parser.add_argument(
+        "--corpus",
+        default=Config.corpus,
+        help="Filename inside data/ to train on (default: %(default)s)",
+    )
+    return parser.parse_args()
+
+
 def main():
-    config = Config()
+    args = parse_args()
+    config = Config(corpus=args.corpus)
     torch.manual_seed(config.seed)
 
     # Read the dataset, downloading it on first run

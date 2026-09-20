@@ -23,8 +23,10 @@ pip install -r requirements.txt
 python -m scripts.train
 ```
 
-Run it from the repository root. The corpus is downloaded into `data/` on the
-first run, so there is nothing to fetch by hand. Training runs for 10,000
+Run it from the repository root. `--corpus NAME` trains on a different file in
+`data/`, for example `python -m scripts.train --corpus chats.txt`; without it
+the `corpus` setting in `core/config.py` applies. The corpus is downloaded
+into `data/` on the first run, so there is nothing to fetch by hand. Training runs for 10,000
 steps, printing train and validation loss every 1,000, then writes the
 weights, the config and the vocabulary to `checkpoints/input.pt` and prints a
 short sample.
@@ -61,8 +63,8 @@ To train on a CPU in a few minutes rather than hours, shrink the model:
 `block_size=64`, `embd_dim=128`, `num_heads=4`, `num_layers=4`,
 `num_steps=2000`.
 
-To train on your own text, drop the file in `data/` and point `corpus` at it,
-for example `corpus = "chats.txt"`. Only `input.txt` is downloaded
+To train on your own text, drop the file in `data/` and either pass
+`--corpus chats.txt` or change the `corpus` setting. Only `input.txt` is downloaded
 automatically; any other corpus has to be on disk already, and you get a
 clear error rather than a silent Shakespeare download if it is missing.
 
