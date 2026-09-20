@@ -1,17 +1,10 @@
 # TinyGPT
 
-A character-level GPT, written from scratch in PyTorch and trained on the
-tiny-shakespeare corpus. Small enough to read end to end: a decoder-only
-transformer in under 400 lines.
+A character-level GPT written from scratch in PyTorch, under 400 lines.
 
 ## Setup
 
-Python 3.11+ and PyTorch are the only requirements.
-
 ```bash
-git clone https://github.com/tempate/TinyGPT.git
-cd TinyGPT
-
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -19,20 +12,15 @@ pip install -r requirements.txt
 
 ## Train
 
+Run from the repository root:
+
 ```bash
-python -m scripts.train
+python -m scripts.train                        # tiny-shakespeare, downloaded on first run
+python -m scripts.train --corpus chats.txt     # any other file you put in data/
 ```
 
-Run it from the repository root. `--corpus NAME` trains on a different file in
-`data/`, for example `python -m scripts.train --corpus chats.txt`; without it
-the `corpus` setting in `core/config.py` applies. The corpus is downloaded
-into `data/` on the first run, so there is nothing to fetch by hand. Training runs for 10,000
-steps, printing train and validation loss every 1,000, then writes the
-weights, the config and the vocabulary to `checkpoints/input.pt` and prints a
-short sample.
-
-It picks up a GPU automatically if one is available. On CPU the default
-settings are slow — see below for a smaller configuration.
+Weights are written to `checkpoints/`, named after the corpus. A GPU is used if
+there is one.
 
 ## Sample
 
@@ -40,65 +28,29 @@ settings are slow — see below for a smaller configuration.
 python -m scripts.sample
 ```
 
-Loads the checkpoint for the configured corpus and prints 500 freshly
-generated characters.
+Prints 500 characters from the trained model.
+
+## Layout
+
+```
+core/network/        attention.py, block.py, model.py
+core/data/           corpus.py, tokenizer.py, dataset.py
+core/config.py       every hyperparameter
+core/checkpoint.py   saving and loading
+scripts/             train.py, sample.py
+data/                corpora      (git-ignored)
+checkpoints/         weights      (git-ignored)
+```
 
 ## Configuration
 
-Every hyperparameter lives in `core/config.py`:
-
-| Parameter | Default | Meaning |
-| --- | --- | --- |
-| `block_size` | 256 | Maximum context length |
-| `embd_dim` | 384 | Embedding size |
-| `num_heads` | 6 | Attention heads per block |
-| `num_layers` | 6 | Transformer blocks |
-| `dropout` | 0.2 | Dropout probability |
-| `batch_size` | 64 | Sequences per step |
-| `learning_rate` | 3e-4 | AdamW learning rate |
-| `num_steps` | 10,000 | Training steps |
-| `corpus` | `input.txt` | Which file in `data/` to train on |
-
-To train on a CPU in a few minutes rather than hours, shrink the model:
+Everything is in `core/config.py`. The defaults assume a GPU; on a CPU use
 `block_size=64`, `embd_dim=128`, `num_heads=4`, `num_layers=4`,
-`num_steps=2000`.
-
-To train on your own text, drop the file in `data/` and either pass
-`--corpus chats.txt` or change the `corpus` setting. Only `input.txt` is downloaded
-automatically; any other corpus has to be on disk already, and you get a
-clear error rather than a silent Shakespeare download if it is missing.
-
-Weights are named after the corpus, so `input.txt` trains into
-`checkpoints/input.pt` and `chats.txt` into `checkpoints/chats.pt`. Switching
-corpora never overwrites the other one's checkpoint, and `python -m
-scripts.sample` reads whichever corpus `config.py` currently names.
-
-## Files
-
-| File | Contents |
-| --- | --- |
-| `scripts/train.py` | Training loop and entry point |
-| `scripts/sample.py` | Generation from a saved checkpoint |
-| `core/network/model.py` | The `GPT` module: embeddings, blocks, language-model head |
-| `core/network/block.py` | Transformer block: multi-head attention and feed-forward |
-| `core/network/attention.py` | A single head of masked self-attention |
-| `core/data/corpus.py` | Corpus download |
-| `core/data/tokenizer.py` | Character-level encode and decode |
-| `core/data/dataset.py` | Train/validation split and batch sampling |
-| `core/config.py` | Hyperparameters and the repository root |
-| `core/checkpoint.py` | Saving and loading trained models |
-
-`core/network/` is the transformer itself and `core/data/` is the pipeline that
-feeds it; `config` and `checkpoint` sit above both because both sides need
-them. Nothing in `core/` imports anything above itself — the network never
-imports the config, it receives one. `scripts/` holds the two entry points.
-
-Generated files stay out of the source tree: the corpus lands in `data/` and
-trained weights in `checkpoints/`, and git ignores each.
+`num_steps=2000` to train in a few minutes.
 
 ## Credit
 
-Built by following Andrej Karpathy's
-[Let's build GPT](https://www.youtube.com/watch?v=kCc8FmEb1nY), restructured
-into separate modules. The corpus is the tiny-shakespeare dataset from
+Follows Andrej Karpathy's
+[Let's build GPT](https://www.youtube.com/watch?v=kCc8FmEb1nY). The default
+corpus is tiny-shakespeare from
 [char-rnn](https://github.com/karpathy/char-rnn).
