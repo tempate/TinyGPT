@@ -1,0 +1,13 @@
+# Corpus: downloaded on first run, never committed
+input.txt
+
+# Trained checkpoints
+*.pt
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtualenvs
+.venv/
+venv/
