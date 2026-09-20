@@ -1,6 +1,7 @@
-# Generated at runtime: the downloaded corpus and the trained weights
-data/
-checkpoints/
+# Generated at runtime: the downloaded corpus and the trained weights.
+# Anchored to the repository root, so these never match core/data/.
+/data/
+/checkpoints/
 
 # Python
 __pycache__/

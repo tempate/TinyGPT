@@ -4,8 +4,8 @@ from dataclasses import asdict, fields
 import torch
 
 from core.config import ROOT, Config
-from core.model import GPT
-from core.tokenizer import Tokenizer
+from core.network.model import GPT
+from core.data.tokenizer import Tokenizer
 
 CHECKPOINT_PATH = ROOT / "checkpoints" / "checkpoint.pt"
 

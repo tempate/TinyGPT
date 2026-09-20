@@ -1,9 +1,9 @@
 from core.config import Config
-from core.model import GPT
-from core.tokenizer import Tokenizer
-from core.dataset import Dataset
+from core.network.model import GPT
+from core.data.tokenizer import Tokenizer
+from core.data.dataset import Dataset
 from core.checkpoint import save
-from core.corpus import load_text
+from core.data.corpus import load_text
 
 import torch
 

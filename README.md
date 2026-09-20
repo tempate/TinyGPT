@@ -68,18 +68,22 @@ and it will be used instead of the download.
 | --- | --- |
 | `scripts/train.py` | Training loop and entry point |
 | `scripts/sample.py` | Generation from a saved checkpoint |
-| `core/model.py` | The `GPT` module: embeddings, blocks, language-model head |
-| `core/block.py` | Transformer block: multi-head attention and feed-forward |
-| `core/attention.py` | A single head of masked self-attention |
+| `core/network/model.py` | The `GPT` module: embeddings, blocks, language-model head |
+| `core/network/block.py` | Transformer block: multi-head attention and feed-forward |
+| `core/network/attention.py` | A single head of masked self-attention |
+| `core/data/corpus.py` | Corpus download |
+| `core/data/tokenizer.py` | Character-level encode and decode |
+| `core/data/dataset.py` | Train/validation split and batch sampling |
 | `core/config.py` | Hyperparameters and the repository root |
-| `core/tokenizer.py` | Character-level encode and decode |
-| `core/dataset.py` | Train/validation split and batch sampling |
-| `core/corpus.py` | Corpus download |
 | `core/checkpoint.py` | Saving and loading trained models |
 
-`core/` is the library and imports nothing above itself; `scripts/` holds the
-two entry points. Generated files stay out of both: the corpus lands in `data/`
-and trained weights in `checkpoints/`, and git ignores each.
+`core/network/` is the transformer itself and `core/data/` is the pipeline that
+feeds it; `config` and `checkpoint` sit above both because both sides need
+them. Nothing in `core/` imports anything above itself — the network never
+imports the config, it receives one. `scripts/` holds the two entry points.
+
+Generated files stay out of the source tree: the corpus lands in `data/` and
+trained weights in `checkpoints/`, and git ignores each.
 
 ## Credit
 
