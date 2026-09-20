@@ -30,6 +30,15 @@ python -m scripts.sample
 
 Prints 500 characters from the trained model.
 
+## Chat
+
+```bash
+python -m scripts.chat --corpus chats.txt
+```
+
+Type a message and the model answers. If the corpus looks like a chat log it
+picks the two busiest senders to speak as; override with `--you` and `--bot`.
+
 ## Layout
 
 ```
@@ -37,7 +46,7 @@ core/network/        attention.py, block.py, model.py
 core/data/           corpus.py, tokenizer.py, dataset.py
 core/config.py       every hyperparameter
 core/checkpoint.py   saving and loading
-scripts/             train.py, sample.py
+scripts/             train.py, sample.py, chat.py
 data/                corpora      (git-ignored)
 checkpoints/         weights      (git-ignored)
 ```
