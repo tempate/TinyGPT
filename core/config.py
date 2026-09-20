@@ -1,6 +1,11 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import torch
+
+# The repository root, so that paths resolve the same however the scripts
+# are invoked. core/config.py -> core/ -> the root.
+ROOT = Path(__file__).resolve().parent.parent
 
 
 @dataclass

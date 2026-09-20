@@ -1,7 +1,7 @@
 """Generate text from a saved checkpoint."""
 import torch
 
-from checkpoint import load
+from core.checkpoint import load
 
 
 def main():

@@ -20,13 +20,14 @@ pip install -r requirements.txt
 ## Train
 
 ```bash
-python train.py
+python -m scripts.train
 ```
 
-The corpus is downloaded on the first run, so there is nothing to fetch by
-hand. Training runs for 10,000 steps, printing train and validation loss every
-1,000, then writes the weights, the config and the vocabulary to
-`checkpoint.pt` and prints a short sample.
+Run it from the repository root. The corpus is downloaded into `data/` on the
+first run, so there is nothing to fetch by hand. Training runs for 10,000
+steps, printing train and validation loss every 1,000, then writes the
+weights, the config and the vocabulary to `checkpoints/checkpoint.pt` and
+prints a short sample.
 
 It picks up a GPU automatically if one is available. On CPU the default
 settings are slow — see below for a smaller configuration.
@@ -34,14 +35,14 @@ settings are slow — see below for a smaller configuration.
 ## Sample
 
 ```bash
-python sample.py
+python -m scripts.sample
 ```
 
-Loads `checkpoint.pt` and prints 500 freshly generated characters.
+Loads `checkpoints/checkpoint.pt` and prints 500 freshly generated characters.
 
 ## Configuration
 
-Every hyperparameter lives in `config.py`:
+Every hyperparameter lives in `core/config.py`:
 
 | Parameter | Default | Meaning |
 | --- | --- | --- |
@@ -58,23 +59,27 @@ To train on a CPU in a few minutes rather than hours, shrink the model:
 `block_size=64`, `embd_dim=128`, `num_heads=4`, `num_layers=4`,
 `num_steps=2000`.
 
-To train on your own text, drop it in as `input.txt` before the first run and
-it will be used instead of the download.
+To train on your own text, save it as `data/input.txt` before the first run
+and it will be used instead of the download.
 
 ## Files
 
 | File | Contents |
 | --- | --- |
-| `train.py` | Training loop and entry point |
-| `sample.py` | Generation from a saved checkpoint |
-| `model.py` | The `GPT` module: embeddings, blocks, language-model head |
-| `block.py` | Transformer block: multi-head attention and feed-forward |
-| `attention.py` | A single head of masked self-attention |
-| `config.py` | Hyperparameters |
-| `tokenizer.py` | Character-level encode and decode |
-| `dataset.py` | Train/validation split and batch sampling |
-| `data.py` | Corpus download |
-| `checkpoint.py` | Saving and loading trained models |
+| `scripts/train.py` | Training loop and entry point |
+| `scripts/sample.py` | Generation from a saved checkpoint |
+| `core/model.py` | The `GPT` module: embeddings, blocks, language-model head |
+| `core/block.py` | Transformer block: multi-head attention and feed-forward |
+| `core/attention.py` | A single head of masked self-attention |
+| `core/config.py` | Hyperparameters and the repository root |
+| `core/tokenizer.py` | Character-level encode and decode |
+| `core/dataset.py` | Train/validation split and batch sampling |
+| `core/corpus.py` | Corpus download |
+| `core/checkpoint.py` | Saving and loading trained models |
+
+`core/` is the library and imports nothing above itself; `scripts/` holds the
+two entry points. Generated files stay out of both: the corpus lands in `data/`
+and trained weights in `checkpoints/`, and git ignores each.
 
 ## Credit
 

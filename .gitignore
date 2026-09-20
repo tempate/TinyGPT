@@ -1,8 +1,6 @@
-# Corpus: downloaded on first run, never committed
-input.txt
-
-# Trained checkpoints
-*.pt
+# Generated at runtime: the downloaded corpus and the trained weights
+data/
+checkpoints/
 
 # Python
 __pycache__/

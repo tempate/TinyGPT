@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from block import Block
+from core.block import Block
 
 
 class GPT(nn.Module):

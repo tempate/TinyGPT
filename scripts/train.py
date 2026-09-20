@@ -1,9 +1,9 @@
-from config import Config
-from model import GPT
-from tokenizer import Tokenizer
-from dataset import Dataset
-from checkpoint import save
-from data import load_text
+from core.config import Config
+from core.model import GPT
+from core.tokenizer import Tokenizer
+from core.dataset import Dataset
+from core.checkpoint import save
+from core.corpus import load_text
 
 import torch
 

@@ -1,18 +1,18 @@
 """Saving and loading trained models."""
 from dataclasses import asdict, fields
-from pathlib import Path
 
 import torch
 
-from config import Config
-from model import GPT
-from tokenizer import Tokenizer
+from core.config import ROOT, Config
+from core.model import GPT
+from core.tokenizer import Tokenizer
 
-CHECKPOINT_PATH = Path(__file__).parent / "checkpoint.pt"
+CHECKPOINT_PATH = ROOT / "checkpoints" / "checkpoint.pt"
 
 
 def save(model, tokenizer, path=CHECKPOINT_PATH):
     """Write the weights, the config and the vocabulary to disk."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     torch.save(
         {
             "config": asdict(model.config),
