@@ -41,8 +41,14 @@ class GPT(nn.Module):
         return logits, loss
 
     @torch.no_grad()
-    def generate(self, context, max_new_tokens):
-        """Generate new tokens from a given context."""
+    def generate(self, context, max_new_tokens, temperature=1.0):
+        """Generate new tokens from a given context.
+
+        Temperature divides the scores before they are turned into
+        probabilities. Below 1 it widens the gap between the likely and the
+        unlikely, which keeps generation from wandering into characters the
+        model barely predicted; above 1 it flattens the distribution.
+        """
         self.eval()
 
         for _ in range(max_new_tokens):
@@ -51,7 +57,7 @@ class GPT(nn.Module):
 
             # Get the last prediction
             logits, _ = self(context_window)
-            logits = logits[:, -1, :]
+            logits = logits[:, -1, :] / temperature
 
             # Apply softmax to get probabilities
             probs = F.softmax(logits, dim=-1)

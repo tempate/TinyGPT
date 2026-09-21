@@ -28,7 +28,8 @@ there is one.
 python -m scripts.sample
 ```
 
-Prints 500 characters from the trained model.
+Prints 500 characters from the trained model. `--temperature` below 1 makes it
+more predictable, above 1 more chaotic.
 
 ## Chat
 
@@ -38,6 +39,7 @@ python -m scripts.chat --corpus chats.txt
 
 Type a message and the model answers. If the corpus looks like a chat log it
 picks the two busiest senders to speak as; override with `--you` and `--bot`.
+`--temperature` works here too.
 
 ## Layout
 

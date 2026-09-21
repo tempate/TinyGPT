@@ -29,13 +29,13 @@ def detect_senders(corpus):
     return you, bot
 
 
-def reply(model, tokenizer, transcript, max_chars):
+def reply(model, tokenizer, transcript, max_chars, temperature):
     """Continue the transcript and return the model's next line."""
     prompt = transcript[-model.config.block_size:]
     context = torch.tensor(
         [tokenizer.encode(prompt)], dtype=torch.long, device=model.config.device
     )
-    tokens = model.generate(context, max_new_tokens=max_chars)
+    tokens = model.generate(context, max_new_tokens=max_chars, temperature=temperature)
     generated = tokenizer.decode(tokens[0].tolist())[len(prompt):]
     return generated.split("\n")[0]
 
@@ -64,7 +64,16 @@ def parse_args():
         default=200,
         help="Longest reply to generate before cutting it off (default: %(default)s)",
     )
-    return parser.parse_args()
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.8,
+        help="Below 1 is more predictable, above 1 more chaotic (default: %(default)s)",
+    )
+    args = parser.parse_args()
+    if args.temperature <= 0:
+        parser.error("--temperature must be greater than 0")
+    return args
 
 
 def main():
@@ -93,7 +102,7 @@ def main():
             continue
 
         transcript += f"{you_prefix}{message}\n{bot_prefix}"
-        line = reply(model, tokenizer, transcript, args.max_chars)
+        line = reply(model, tokenizer, transcript, args.max_chars, args.temperature)
         print(f"{bot_prefix}{line}")
 
         # Keep only what still fits in the model's context
