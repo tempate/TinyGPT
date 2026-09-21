@@ -41,6 +41,17 @@ Type a message and the model answers. If the corpus looks like a chat log it
 picks the two busiest senders to speak as; override with `--you` and `--bot`.
 `--temperature` works here too.
 
+## Browser
+
+```bash
+python -m scripts.export_web --corpus chats.txt   # writes web/weights.bin + web/model.json
+cd web && python -m http.server                   # then open localhost:8000
+```
+
+`web/tinygpt.js` reimplements the forward pass in plain JavaScript — no
+dependencies, no build step, everything runs in the tab. It is checked
+against PyTorch to 2e-6 on the same prompt.
+
 ## Layout
 
 ```
@@ -48,7 +59,8 @@ core/network/        attention.py, block.py, model.py
 core/data/           corpus.py, tokenizer.py, dataset.py
 core/config.py       every hyperparameter
 core/checkpoint.py   saving and loading
-scripts/             train.py, sample.py, chat.py
+scripts/             train.py, sample.py, chat.py, export_web.py
+web/                 the same model in JavaScript, plus a chat page
 data/                corpora      (git-ignored)
 checkpoints/         weights      (git-ignored)
 ```

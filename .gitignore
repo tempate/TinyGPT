@@ -3,6 +3,10 @@
 /data/
 /checkpoints/
 
+# Exported for the browser by scripts/export_web.py, same as a checkpoint
+/web/weights.bin
+/web/model.json
+
 # Python
 __pycache__/
 *.pyc
