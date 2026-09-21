@@ -42,10 +42,10 @@ export async function mount(root, baseUrl = '.') {
   const { speakers } = model;
   const nameOf = new Map(speakers.map((s) => [s.id, s.name]));
   for (const pick of [senderPick, replierPick]) {
-    for (const { id, name, messages } of speakers) {
+    for (const { id, name } of speakers) {
       const option = document.createElement('option');
       option.value = id;
-      option.textContent = `${name} (${messages.toLocaleString()})`;
+      option.textContent = name;
       pick.append(option);
     }
     pick.disabled = speakers.length === 0;
