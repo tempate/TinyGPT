@@ -18,7 +18,8 @@ export function buildModel(manifest, buffer) {
   const chars = manifest.chars;
   const stoi = new Map(chars.map((c, i) => [c, i]));
   const senders = manifest.senders ?? { you: '', bot: '' };
-  return { config: manifest.config, chars, stoi, senders, corpus: manifest.corpus, weights };
+  const speakers = manifest.speakers ?? [];
+  return { config: manifest.config, chars, stoi, senders, speakers, corpus: manifest.corpus, weights };
 }
 
 export function encode(model, text) {

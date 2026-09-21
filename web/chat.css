@@ -1,17 +1,43 @@
-/* Uses the site's design tokens when embedded, with fallbacks when standalone. */
+/* Uses the site's design tokens when embedded, with fallbacks when standalone.
+   The fallbacks come in both themes, so a standalone page is readable in dark
+   mode too; wherever the site defines a token, that wins in both. */
 .tg {
-  --tg-bg: var(--bg2, #f1efeb);
-  --tg-ink: var(--ink, #18181a);
-  --tg-muted: var(--muted, #5e5e65);
-  --tg-accent: var(--accent, #b509ac);
-  --tg-border: var(--card-border, rgba(24, 24, 26, 0.12));
+  --fb-bg: #f1efeb;
+  --fb-ink: #18181a;
+  --fb-muted: #5e5e65;
+  --fb-accent: #b509ac;
+  --fb-border: rgba(24, 24, 26, 0.12);
+  --fb-on-accent: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .tg {
+    --fb-bg: #1c1c21;
+    --fb-ink: #ededea;
+    --fb-muted: #a8a8ae;
+    --fb-accent: #e879de;
+    --fb-border: rgba(237, 237, 234, 0.14);
+    /* the dark theme's accent is a pale pink, so its label must be dark */
+    --fb-on-accent: #16161a;
+  }
+}
+
+.tg {
+  --tg-bg: var(--bg2, var(--fb-bg));
+  --tg-ink: var(--ink, var(--fb-ink));
+  --tg-muted: var(--muted, var(--fb-muted));
+  --tg-accent: var(--accent, var(--fb-accent));
+  --tg-border: var(--card-border, var(--fb-border));
+  --tg-on-accent: var(--fb-on-accent);
   max-width: 44rem;
+  color: var(--tg-ink);
 }
 
 .tg-log {
   border: 1px solid var(--tg-border);
   border-radius: 6px;
   background: var(--tg-bg);
+  color: var(--tg-ink);
   padding: 1rem;
   height: 22rem;
   overflow-y: auto;
@@ -25,7 +51,27 @@
 .tg-msg.is-you .tg-who { color: var(--tg-muted); }
 .tg-cursor::after { content: '▍'; opacity: 0.6; }
 
-.tg-form { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+.tg-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--tg-muted);
+}
+.tg-people label { display: flex; align-items: center; gap: 0.4rem; }
+.tg-people select {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.4rem;
+  color: var(--tg-ink);
+  background: var(--tg-bg);
+  border: 1px solid var(--tg-border);
+  border-radius: 5px;
+}
+.tg-people select:focus-visible { outline: 2px solid var(--tg-accent); outline-offset: 2px; }
+
+.tg-form { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 .tg-form input {
   flex: 1;
   min-width: 0;
@@ -43,7 +89,7 @@
   padding: 0.55rem 1.1rem;
   font: inherit;
   font-size: 0.9rem;
-  color: var(--tg-bg);
+  color: var(--tg-on-accent);
   background: var(--tg-accent);
   border: 1px solid transparent;
   border-radius: 6px;

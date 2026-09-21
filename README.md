@@ -52,6 +52,11 @@ cd web && python -m http.server                   # then open localhost:8000
 dependencies, no build step, everything runs in the tab. It is checked
 against PyTorch to 2e-6 on the same prompt.
 
+Pick who is speaking and who answers from the two dropdowns. Put a
+`<corpus>.senders.txt` next to the corpus, one `INITIAL  Name` per line, and
+the page shows real names while the model still sees the initials it was
+trained on.
+
 ## Layout
 
 ```

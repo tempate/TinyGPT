@@ -1,13 +1,11 @@
 """Hold a conversation with a trained model."""
 import argparse
-import re
-from collections import Counter
 
 import torch
 
 from core.config import Config
 from core.checkpoint import load
-from core.data.corpus import DATA_DIR
+from core.data.corpus import sender_counts
 
 
 def detect_senders(corpus):
@@ -16,12 +14,7 @@ def detect_senders(corpus):
     Corpora like tiny-shakespeare have no "SENDER: message" structure, in which
     case there is nobody to impersonate and the model simply continues the text.
     """
-    path = DATA_DIR / corpus
-    if not path.exists():
-        return "", ""
-
-    senders = re.findall(r"(?m)^([^\n:]{1,8}): ", path.read_text())
-    common = [sender for sender, _ in Counter(senders).most_common(2)]
+    common = [sender for sender, _ in sender_counts(corpus).most_common(2)]
     if len(common) < 2:
         return "", ""
 

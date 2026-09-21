@@ -11,6 +11,8 @@ export async function mount(root, baseUrl = '.') {
   const status = root.querySelector('.tg-status');
   const tempInput = root.querySelector('[name="temperature"]');
   const tempValue = root.querySelector('.tg-temp-value');
+  const senderPick = root.querySelector('.tg-sender');
+  const replierPick = root.querySelector('.tg-replier');
 
   const say = (who, text, you = false) => {
     const p = document.createElement('p');
@@ -36,7 +38,21 @@ export async function mount(root, baseUrl = '.') {
     return;
   }
 
-  const { you, bot } = model.senders ?? { you: '', bot: '' };
+  // The dropdowns hold one entry per person in the corpus, busiest first
+  const { speakers } = model;
+  const nameOf = new Map(speakers.map((s) => [s.id, s.name]));
+  for (const pick of [senderPick, replierPick]) {
+    for (const { id, name, messages } of speakers) {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = `${name} (${messages.toLocaleString()})`;
+      pick.append(option);
+    }
+    pick.disabled = speakers.length === 0;
+  }
+  senderPick.value = model.senders.you;
+  replierPick.value = model.senders.bot;
+
   status.textContent = `${model.chars.length} characters of vocabulary, ${model.config.num_layers} layers. Say something.`;
   button.disabled = false;
   input.disabled = false;
@@ -54,19 +70,24 @@ export async function mount(root, baseUrl = '.') {
     const typed = keepKnown(input.value.trim());
     if (!typed) return;
 
+    const from = senderPick.value;
+    const to = replierPick.value;
+
     input.value = '';
-    say(you, typed, true);
+    say(nameOf.get(from) ?? from, typed, true);
 
     busy = true;
     button.disabled = true;
     status.textContent = 'thinking…';
 
-    const bubble = say(bot, '');
+    const bubble = say(nameOf.get(to) ?? to, '');
     bubble.classList.add('tg-cursor');
     const text = document.createTextNode('');
     bubble.append(text);
 
-    transcript += `${you ? `${you}: ` : ''}${typed}\n${bot ? `${bot}: ` : ''}`;
+    // What the model actually sees: initials, and the replier's prefix left
+    // dangling so the next character it writes is the start of their message
+    transcript += `${from ? `${from}: ` : ''}${typed}\n${to ? `${to}: ` : ''}`;
     let reply = '';
     await generate(model, transcript.slice(-model.config.block_size), {
       maxChars: MAX_REPLY,

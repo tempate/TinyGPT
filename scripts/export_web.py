@@ -14,6 +14,7 @@ import torch
 
 from core.config import Config
 from core.checkpoint import checkpoint_path
+from core.data.corpus import load_names, sender_counts
 from scripts.chat import detect_senders
 
 
@@ -64,20 +65,29 @@ def main():
         blob += array.tobytes(order="C")
 
     (out / "weights.bin").write_bytes(bytes(blob))
-    # The browser has no corpus to scan, so the speakers ship with the model
+    # The browser has no corpus to scan, so the speakers ship with the model:
+    # every sender in the order they talk, their real names where we know them,
+    # and the two the page should start with.
     you, bot = detect_senders(args.corpus)
+    sender_names = load_names(args.corpus)
+    speakers = [
+        {"id": sender, "name": sender_names.get(sender, sender), "messages": count}
+        for sender, count in sender_counts(args.corpus).most_common()
+    ]
 
     (out / "model.json").write_text(json.dumps({
         "config": {k: config[k] for k in
                    ("block_size", "embd_dim", "num_heads", "num_layers", "head_size", "vocab_size")},
         "chars": checkpoint["chars"],
         "senders": {"you": you, "bot": bot},
+        "speakers": speakers,
         "corpus": args.corpus,
         "tensors": manifest,
     }))
 
     print(f"{len(names)} tensors, {len(blob)/1e6:.2f} MB -> {out}/weights.bin")
-    print(f"vocab {len(checkpoint['chars'])}, speakers {you!r}/{bot!r} -> {out}/model.json")
+    print(f"vocab {len(checkpoint['chars'])}, {len(speakers)} speakers, "
+          f"defaults {you!r}/{bot!r} -> {out}/model.json")
 
 
 if __name__ == "__main__":
