@@ -1,0 +1,5 @@
+node_modules/
+package-lock.json
+
+# The signed-in WhatsApp session: credentials, never commit
+auth/

@@ -57,6 +57,11 @@ Pick who is speaking and who answers from the two dropdowns. Put a
 the page shows real names while the model still sees the initials it was
 trained on.
 
+## WhatsApp
+
+`bot/` puts the same model on WhatsApp, reusing the JavaScript engine. It
+signs in as a real account, so use a spare number — see `bot/README.md`.
+
 ## Layout
 
 ```
@@ -66,6 +71,7 @@ core/config.py       every hyperparameter
 core/checkpoint.py   saving and loading
 scripts/             train.py, sample.py, chat.py, export_web.py
 web/                 the same model in JavaScript, plus a chat page
+bot/                 a WhatsApp bot built on that engine
 data/                corpora      (git-ignored)
 checkpoints/         weights      (git-ignored)
 ```
